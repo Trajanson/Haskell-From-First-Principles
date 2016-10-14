@@ -64,10 +64,16 @@ instance HasOptions Button where
                             Selection 'Y',
                             Selection 'Z',
                             Selection '9']
-  getOptions ButtonStar  = [Setting Capitalize]
+  getOptions ButtonStar  = [Setting Capitalize,
+                            Selection '*',
+                            Selection '^']
   getOptions ButtonZero  = [Selection ' ',
+                            Selection '+',
+                            Selection '_',
                             Selection '0']
-  getOptions ButtonPound = []
+  getOptions ButtonPound = [Selection '.',
+                            Selection ',',
+                            Selection '#']
 
 
 
@@ -178,8 +184,41 @@ fingerTaps :: [Direction] -> Int
 fingerTaps = foldr (\dir sum -> (getPresses (presses dir)) + sum ) 0
     where getPresses (Presses x) = x
 
+fingerTapsForText :: String -> Int
+fingerTapsForText = fingerTaps . getDirectionsForText
+
+fingerTapsForConvo :: [String] -> Int
+fingerTapsForConvo = foldr (\a b -> (fingerTapsForText a) + b ) 0
+
+countCharacterInString :: Char -> String -> Int
+countCharacterInString char text = go 0 text
+    where go count remainingText
+           | null remainingText = count
+           | head remainingText == char = go (count + 1)
+                                             (tail remainingText)
+           | otherwise = go (count)
+                            (tail remainingText)
+
+mostCommonCharacterInString :: String -> Char
+mostCommonCharacterInString text = go ' ' 0 text
+  where go maxChar maxCount remainingText
+         | null remainingText = maxChar
+         | otherwise = if countCharacterInString (head remainingText)
+                                                 (text)
+                           > maxCount
+                       then go (head remainingText)
+                               (countCharacterInString (head remainingText)
+                                                       (text))
+                               (tail remainingText)
+                       else go maxChar maxCount (tail remainingText)
 
 
+
+
+countTapsForCharInString :: Char -> String -> Int
+countTapsForCharInString char text = tapsPerChar * (countCharacterInString char text)
+  where button = buttonWithCharacter char
+        tapsPerChar = (\(Presses a) -> a) (pressesToGetCharacterFromButton button char)
 
 
 
