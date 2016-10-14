@@ -516,11 +516,19 @@ yusssss = notQuite False
 
 
 
+data Silly a b c d = MkSilly a b c d deriving Show
 
 
 
 
+-- data EsResultFound a = EsResultFound { _version :: DocVersion
+--                                       , _source :: a }
+--                                       deriving (Eq, Show)
 
+
+
+data Product a b = a :&: b
+                   deriving (Eq, Show)
 
 
 
